@@ -20,16 +20,16 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         menu.removeAllItems()
 
         if !Permissions.isAccessibilityTrusted {
-            menu.addItem(action("⚠️ 需要辅助功能权限…", #selector(openAccessibility)))
+            menu.addItem(action(String(localized: "⚠️ Accessibility Permission Required…"), #selector(openAccessibility)))
             menu.addItem(.separator())
         }
 
-        let enabled = action("启用", #selector(toggleEnabled))
+        let enabled = action(String(localized: "Enabled"), #selector(toggleEnabled))
         enabled.state = prefs.enabled ? .on : .off
         menu.addItem(enabled)
-        menu.addItem(action("设置…", #selector(showSettings), key: ","))
+        menu.addItem(action(String(localized: "Settings…"), #selector(showSettings), key: ","))
         menu.addItem(.separator())
-        menu.addItem(action("退出 MissionControlEnhance", #selector(quit), key: "q"))
+        menu.addItem(action(String(localized: "Quit"), #selector(quit), key: "q"))
     }
 
     private func action(_ title: String, _ selector: Selector, key: String = "") -> NSMenuItem {

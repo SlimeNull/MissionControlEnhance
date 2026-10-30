@@ -35,6 +35,7 @@ MissionControlEnhance 是一个菜单栏小工具，它在**不分组**的调度
 - **排除应用**：不想被标注的应用可以加入排除列表。
 - **多显示器**：每块屏幕的调度中心都会叠加。
 - **登录时启动**。
+- **中英文界面**：跟随系统语言，中文系统中显示为「调度中心增强」。
 
 ## 安装
 
@@ -62,7 +63,7 @@ MissionControlEnhance 是一个菜单栏小工具，它在**不分组**的调度
 
 ## 设置
 
-点菜单栏图标 →「设置…」打开设置窗口。
+点菜单栏图标 →「设置…」打开设置窗口。应用已在运行时，再次打开它也会直接弹出设置窗口。
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/images/settings-dark.png">

@@ -3,6 +3,9 @@ import ApplicationServices
 
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
+    /// Posted by a second launch so the instance already running opens its settings.
+    private static let showSettingsNotification = Notification.Name("com.slimenull.MissionControlEnhance.showSettings")
+
     private let prefs = Preferences.shared
     private var coordinator: OverlayCoordinator?
     private var menuBar: MenuBarController?
@@ -10,6 +13,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var permissionTimer: Timer?
 
     func applicationDidFinishLaunching(_: Notification) {
+        if let running = Self.otherInstance() {
+            DistributedNotificationCenter.default().postNotificationName(Self.showSettingsNotification, object: nil, userInfo: nil, deliverImmediately: true)
+            running.activate()
+            NSApp.terminate(nil)
+            return
+        }
+        DistributedNotificationCenter.default().addObserver(forName: Self.showSettingsNotification, object: nil, queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated { self?.settings.show() }
+        }
+
         // Bounds every AX round trip, so one hung app cannot stall a scan.
         AXUIElementSetMessagingTimeout(AXUIElementCreateSystemWide(), 0.5)
 
@@ -21,6 +34,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             Permissions.requestAccessibility()
             waitForAccessibility()
         }
+    }
+
+    /// Opening the app from Finder while it runs (Launch Services reuses the instance).
+    func applicationShouldHandleReopen(_: NSApplication, hasVisibleWindows _: Bool) -> Bool {
+        settings.show()
+        return false
+    }
+
+    /// Another copy with the same bundle ID, e.g. launched from a different path.
+    private static func otherInstance() -> NSRunningApplication? {
+        guard let bundleID = Bundle.main.bundleIdentifier else { return nil }
+        let me = ProcessInfo.processInfo.processIdentifier
+        return NSRunningApplication.runningApplications(withBundleIdentifier: bundleID).first { $0.processIdentifier != me }
     }
 
     private func waitForAccessibility() {

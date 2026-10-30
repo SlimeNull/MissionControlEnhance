@@ -27,15 +27,15 @@ enum IconPosition: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .topLeft: "左上"
-        case .top: "上边"
-        case .topRight: "右上"
-        case .left: "左边"
-        case .center: "中间"
-        case .right: "右边"
-        case .bottomLeft: "左下"
-        case .bottom: "下边"
-        case .bottomRight: "右下"
+        case .topLeft: String(localized: "Top Left")
+        case .top: String(localized: "Top")
+        case .topRight: String(localized: "Top Right")
+        case .left: String(localized: "Left")
+        case .center: String(localized: "Center")
+        case .right: String(localized: "Right")
+        case .bottomLeft: String(localized: "Bottom Left")
+        case .bottom: String(localized: "Bottom")
+        case .bottomRight: String(localized: "Bottom Right")
         }
     }
 }
@@ -47,9 +47,9 @@ enum ButtonKind: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .close: "关闭窗口"
-        case .minimize: "最小化窗口"
-        case .quit: "退出应用（按住 ⌥ 强制退出）"
+        case .close: String(localized: "Close Window")
+        case .minimize: String(localized: "Minimize Window")
+        case .quit: String(localized: "Quit App (hold ⌥ to force quit)")
         }
     }
 }
@@ -62,10 +62,10 @@ enum QuickAction: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .none: "无"
-        case .close: "关闭窗口"
-        case .minimize: "最小化窗口"
-        case .quit: "退出应用"
+        case .none: String(localized: "None")
+        case .close: String(localized: "Close Window")
+        case .minimize: String(localized: "Minimize Window")
+        case .quit: String(localized: "Quit App")
         }
     }
 }

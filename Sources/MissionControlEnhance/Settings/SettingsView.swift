@@ -16,7 +16,7 @@ final class SettingsWindowController {
         if window == nil {
             let view = SettingsView(prefs: prefs, state: SettingsState(), fingers: FingerProbeModel())
             let window = NSWindow(contentViewController: NSHostingController(rootView: view))
-            window.title = "MissionControlEnhance 设置"
+            window.title = String(localized: "MissionControlEnhance Settings")
             window.styleMask = [.titled, .closable]
             window.isReleasedWhenClosed = false
             window.center()
@@ -39,7 +39,7 @@ final class SettingsState: ObservableObject {
             if on { try SMAppService.mainApp.register() } else { try SMAppService.mainApp.unregister() }
             launchError = nil
         } catch {
-            launchError = "设置失败：\(error.localizedDescription)"
+            launchError = String(localized: "Failed to update: \(error.localizedDescription)")
         }
         launchAtLogin = SMAppService.mainApp.status == .enabled
     }
@@ -51,98 +51,110 @@ struct SettingsView: View {
     @ObservedObject var fingers: FingerProbeModel
 
     var body: some View {
-        Form {
-            Section("通用") {
-                Toggle("启用", isOn: $prefs.enabled)
-                Toggle("登录时启动", isOn: Binding(get: { state.launchAtLogin }, set: state.setLaunchAtLogin))
-                if let launchError = state.launchError {
-                    Text(launchError).font(.caption).foregroundStyle(.red)
-                }
-            }
-
-            Section("应用图标") {
-                LabeledContent("大小") {
-                    Slider(value: $prefs.iconSize, in: 24...64, step: 2)
-                    Text("\(Int(prefs.iconSize)) pt").monospacedDigit().frame(width: 44, alignment: .trailing)
-                }
-                LabeledContent("位置") {
-                    HStack(spacing: 12) {
-                        Text(prefs.iconPosition.title).foregroundStyle(.secondary)
-                        IconPositionPicker(selection: $prefs.iconPosition)
+        VStack(spacing: 0) {
+            Form {
+                Section("General") {
+                    Toggle("Enabled", isOn: $prefs.enabled)
+                    Toggle("Launch at login", isOn: Binding(get: { state.launchAtLogin }, set: state.setLaunchAtLogin))
+                    if let launchError = state.launchError {
+                        Text(launchError).font(.caption).foregroundStyle(.red)
                     }
                 }
-            }
 
-            Section("窗口按钮（鼠标悬停时显示）") {
-                Toggle("显示按钮", isOn: $prefs.showButtons)
-                Group {
-                    ForEach(Array(prefs.buttonOrder.enumerated()), id: \.element) { index, kind in
-                        ButtonOrderRow(
-                            kind: kind,
-                            isShown: Binding(get: { prefs.isButtonShown(kind) }, set: { prefs.setButton(kind, shown: $0) }),
-                            canMoveLeft: index > 0,
-                            canMoveRight: index < prefs.buttonOrder.count - 1,
-                            move: { prefs.moveButton(kind, by: $0) }
-                        )
+                Section("App Icon") {
+                    LabeledContent("Size") {
+                        Slider(value: $prefs.iconSize, in: 24...64, step: 2)
+                        Text("\(Int(prefs.iconSize)) pt").monospacedDigit().frame(width: 44, alignment: .trailing)
                     }
-                    LabeledContent("预览（从左到右）") {
-                        HStack(spacing: 6) {
-                            ForEach(prefs.enabledButtons) { ButtonSwatch(kind: $0) }
+                    LabeledContent("Position") {
+                        HStack(spacing: 12) {
+                            Text(prefs.iconPosition.title).foregroundStyle(.secondary)
+                            IconPositionPicker(selection: $prefs.iconPosition)
                         }
                     }
                 }
-                .disabled(!prefs.showButtons)
-                Toggle("退出应用前需要再次点击确认", isOn: $prefs.confirmQuit)
-            }
 
-            Section("快捷操作") {
-                Toggle("鼠标中键点击", isOn: $prefs.middleClickEnabled)
-                if prefs.middleClickEnabled {
-                    Picker("中键点击动作", selection: $prefs.middleClickAction) {
-                        ForEach(QuickAction.allCases) { Text($0.title).tag($0) }
+                Section("Window Buttons (shown on hover)") {
+                    Toggle("Show buttons", isOn: $prefs.showButtons)
+                    Group {
+                        ForEach(Array(prefs.buttonOrder.enumerated()), id: \.element) { index, kind in
+                            ButtonOrderRow(
+                                kind: kind,
+                                isShown: Binding(get: { prefs.isButtonShown(kind) }, set: { prefs.setButton(kind, shown: $0) }),
+                                canMoveLeft: index > 0,
+                                canMoveRight: index < prefs.buttonOrder.count - 1,
+                                move: { prefs.moveButton(kind, by: $0) }
+                            )
+                        }
+                        LabeledContent("Preview (left to right)") {
+                            HStack(spacing: 6) {
+                                ForEach(prefs.enabledButtons) { ButtonSwatch(kind: $0) }
+                            }
+                        }
                     }
+                    .disabled(!prefs.showButtons)
+                    Toggle("Click again to confirm before quitting an app", isOn: $prefs.confirmQuit)
                 }
-                Toggle("触控板三指按下", isOn: $prefs.threeFingerClickEnabled)
-                    .disabled(!FingerCountTracker.shared.isAvailable)
-                if prefs.threeFingerClickEnabled {
-                    Picker("三指按下动作", selection: $prefs.threeFingerClickAction) {
-                        ForEach(QuickAction.allCases) { Text($0.title).tag($0) }
-                    }
-                    FingerCountProbe(model: fingers)
-                }
-                if !FingerCountTracker.shared.isAvailable {
-                    Text("当前系统无法加载多点触控框架，三指按下不可用。").font(.caption).foregroundStyle(.secondary)
-                }
-            }
 
-            Section("排除的应用") {
-                ForEach(prefs.excludedBundleIDs, id: \.self) { bundleID in
-                    HStack {
-                        Text(Self.appName(for: bundleID))
-                        Spacer()
-                        Button("移除") { prefs.excludedBundleIDs.removeAll { $0 == bundleID } }
+                Section("Quick Actions") {
+                    Toggle("Middle click", isOn: $prefs.middleClickEnabled)
+                    if prefs.middleClickEnabled {
+                        Picker("Middle click action", selection: $prefs.middleClickAction) {
+                            ForEach(QuickAction.allCases) { Text($0.title).tag($0) }
+                        }
+                    }
+                    Toggle("Three-finger trackpad press", isOn: $prefs.threeFingerClickEnabled)
+                        .disabled(!FingerCountTracker.shared.isAvailable)
+                    if prefs.threeFingerClickEnabled {
+                        Picker("Three-finger press action", selection: $prefs.threeFingerClickAction) {
+                            ForEach(QuickAction.allCases) { Text($0.title).tag($0) }
+                        }
+                        FingerCountProbe(model: fingers)
+                    }
+                    if !FingerCountTracker.shared.isAvailable {
+                        Text("The multitouch framework can't be loaded on this system, so three-finger press is unavailable.").font(.caption).foregroundStyle(.secondary)
                     }
                 }
-                Menu("添加正在运行的应用") {
-                    ForEach(Self.runningApps(excluding: prefs.excludedBundleIDs), id: \.0) { bundleID, name in
-                        Button(name) { prefs.excludedBundleIDs.append(bundleID) }
-                    }
-                }
-            }
 
-            Section("诊断") {
-                Toggle("调试模式（显示匹配框与置信度）", isOn: $prefs.debugMode)
-                LabeledContent {
-                    Button("导出") { DockTreeExporter.export(after: 3) }
-                } label: {
-                    Text("导出 Dock AX 树")
-                    Text("点击后 3 秒内打开调度中心，结果保存到 ~/Library/Logs/MissionControlEnhance")
+                Section("Excluded Apps") {
+                    ForEach(prefs.excludedBundleIDs, id: \.self) { bundleID in
+                        HStack {
+                            Text(Self.appName(for: bundleID))
+                            Spacer()
+                            Button("Remove") { prefs.excludedBundleIDs.removeAll { $0 == bundleID } }
+                        }
+                    }
+                    Menu("Add Running App") {
+                        ForEach(Self.runningApps(excluding: prefs.excludedBundleIDs), id: \.0) { bundleID, name in
+                            Button(name) { prefs.excludedBundleIDs.append(bundleID) }
+                        }
+                    }
+                }
+
+                Section("Diagnostics") {
+                    Toggle("Debug mode (show match boxes and confidence)", isOn: $prefs.debugMode)
+                    LabeledContent {
+                        Button("Export") { DockTreeExporter.export(after: 3) }
+                    } label: {
+                        Text("Export Dock AX tree")
+                        Text("Open Mission Control within 3 seconds after clicking. The result is saved to ~/Library/Logs/MissionControlEnhance")
+                    }
                 }
             }
+            .formStyle(.grouped)
+            Divider()
+            HStack {
+                Text("Version \(Self.version)").font(.caption).foregroundStyle(.secondary)
+                Spacer()
+                Button("Quit") { NSApp.terminate(nil) }
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 10)
         }
-        .formStyle(.grouped)
         .frame(width: 480, height: 520)
     }
+
+    private static let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "dev"
 
     private static func appName(for bundleID: String) -> String {
         guard let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID) else { return bundleID }
@@ -210,10 +222,10 @@ private struct ButtonOrderRow: View {
             Spacer()
             Button { move(-1) } label: { Image(systemName: "arrow.left") }
                 .disabled(!canMoveLeft)
-                .help("左移")
+                .help("Move left")
             Button { move(1) } label: { Image(systemName: "arrow.right") }
                 .disabled(!canMoveRight)
-                .help("右移")
+                .help("Move right")
         }
         .buttonStyle(.borderless)
     }
@@ -269,12 +281,12 @@ private struct FingerCountProbe: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("把手指放在触控板上测试，当前检测到 \(model.count) 根手指")
+            Text("Rest your fingers on the trackpad to test. Fingers detected: \(model.count)")
                 .monospacedDigit()
             if !model.inputMonitoring {
                 HStack {
-                    Text("若触摸时始终为 0，可能需要“输入监控”权限。").font(.caption).foregroundStyle(.secondary)
-                    Button("授权") {
+                    Text("If it stays at 0 while touching, Input Monitoring permission may be needed.").font(.caption).foregroundStyle(.secondary)
+                    Button("Grant Access") {
                         Permissions.requestInputMonitoring()
                         Permissions.openInputMonitoringSettings()
                     }

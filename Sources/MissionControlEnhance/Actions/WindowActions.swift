@@ -33,34 +33,34 @@ final class WindowActions: @unchecked Sendable {
                 guard let button = AX.element(window.element, kAXCloseButtonAttribute),
                       AXUIElementPerformAction(button, kAXPressAction as CFString) == .success
                 else {
-                    finish(.unchanged("该窗口不支持关闭"))
+                    finish(.unchanged(String(localized: "This window can't be closed")))
                     return
                 }
                 let gone = Self.waitUntil(timeout: 1.5) { Self.isGone(window) }
-                finish(gone ? .windowGone : .unchanged("窗口未关闭，可能需要处理保存对话框"))
+                finish(gone ? .windowGone : .unchanged(String(localized: "Window not closed; it may be waiting on a save dialog")))
             }
 
         case .minimize:
             guard let window else { return }
             queue.async {
                 guard AXUIElementSetAttributeValue(window.element, kAXMinimizedAttribute as CFString, kCFBooleanTrue) == .success else {
-                    finish(.unchanged("该窗口不支持最小化"))
+                    finish(.unchanged(String(localized: "This window can't be minimized")))
                     return
                 }
                 let done = Self.waitUntil(timeout: 1.0) { AX.bool(window.element, kAXMinimizedAttribute) == true || Self.isGone(window) }
-                finish(done ? .windowGone : .unchanged("窗口未能最小化"))
+                finish(done ? .windowGone : .unchanged(String(localized: "Window could not be minimized")))
             }
 
         case .quit(let force):
             guard let pid, let app = NSRunningApplication(processIdentifier: pid) else { return }
             let sent = force ? app.forceTerminate() : app.terminate()
             guard sent else {
-                finish(.unchanged("无法退出该应用"))
+                finish(.unchanged(String(localized: "Unable to quit this app")))
                 return
             }
             queue.async {
                 let terminated = Self.waitUntil(timeout: 3.0) { app.isTerminated }
-                finish(terminated ? .appTerminated(pid) : .unchanged("应用未退出，可能在等待确认"))
+                finish(terminated ? .appTerminated(pid) : .unchanged(String(localized: "App didn't quit; it may be waiting for confirmation")))
             }
         }
     }

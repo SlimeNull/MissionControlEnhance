@@ -277,8 +277,8 @@ final class OverlayCoordinator {
     private func debugText(for item: ResolvedThumbnail) -> String {
         let app = item.pid.flatMap { NSRunningApplication(processIdentifier: $0)?.localizedName } ?? "?"
         let cost = item.cost.map { String(format: "%.3f", $0) } ?? "-"
-        let fingers = holdsFingerTracker ? " · 手指 \(FingerCountTracker.shared.currentCount)" : ""
-        return " \(app) · \(item.confidence) · \(cost)\(fingers)\n \(item.thumbnail.title ?? "<无标题>")"
+        let fingers = holdsFingerTracker ? String(localized: " · Fingers \(FingerCountTracker.shared.currentCount)") : ""
+        return " \(app) · \(item.confidence) · \(cost)\(fingers)\n \(item.thumbnail.title ?? String(localized: "<untitled>"))"
     }
 
     // MARK: - Input
@@ -331,8 +331,8 @@ final class OverlayCoordinator {
     private func requestQuit(_ item: ResolvedThumbnail, force: Bool) {
         if prefs.confirmQuit, armedQuit != item.key {
             armedQuit = item.key
-            let name = item.pid.flatMap { NSRunningApplication(processIdentifier: $0)?.localizedName } ?? "应用"
-            showNotice(force ? "再次点击以强制退出 \(name)" : "再次点击以退出 \(name)", on: item.key, duration: 2) { [weak self] in
+            let name = item.pid.flatMap { NSRunningApplication(processIdentifier: $0)?.localizedName } ?? String(localized: "App")
+            showNotice(force ? String(localized: "Click again to force quit \(name)") : String(localized: "Click again to quit \(name)"), on: item.key, duration: 2) { [weak self] in
                 if self?.armedQuit == item.key { self?.armedQuit = nil }
             }
             return
