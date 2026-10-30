@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:MissionControlEnhance}",
+            "name": "Debug MissionControlEnhance",
+            "target": "MissionControlEnhance",
+            "configuration": "debug",
+            "preLaunchTask": "swift: Build Debug MissionControlEnhance"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:MissionControlEnhance}",
+            "name": "Release MissionControlEnhance",
+            "target": "MissionControlEnhance",
+            "configuration": "release",
+            "preLaunchTask": "swift: Build Release MissionControlEnhance"
+        }
+    ]
+}

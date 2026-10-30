@@ -1,0 +1,6 @@
+{
+  "base_url": "",
+  "api_key_env": "IMAGE_API_KEY",
+  "model": "gpt-image-2",
+  "timeout": 600
+}
