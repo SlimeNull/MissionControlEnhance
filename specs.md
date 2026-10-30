@@ -296,8 +296,9 @@ MissionControlEnhance/
 ```bash
 ./scripts/build.sh                 # 生成并签名 build/MissionControlEnhance.app
 open build/MissionControlEnhance.app  # 首次运行会请求辅助功能权限
+./scripts/build_dmg.sh             # 打包 DMG；ARCH=x86_64 交叉编译 Intel 版
 ```
 
 - 脚本会自动选用钥匙串里的 `Developer ID Application` / `Apple Development` 证书签名，签名身份稳定，重新编译后不需要重新授权。可以用 `SIGN_IDENTITY="-"` 改为 ad-hoc 签名。
 - Command Line Tools 不带 SwiftUI 宏插件，所以设置界面不用 `@State`，视图状态放在 `ObservableObject` 里。
-- 菜单栏「调试模式」会给每个缩略图画框：绿色表示精确匹配到窗口，黄色表示只确定了应用，红色表示未匹配；同时显示匹配代价。
+- 设置窗口「诊断」中的「调试模式」会给每个缩略图画框：绿色表示精确匹配到窗口，黄色表示只确定了应用，红色表示未匹配；同时显示匹配代价。
