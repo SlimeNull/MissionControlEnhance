@@ -9,9 +9,9 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/SlimeNull/MissionControlEnhance/releases/latest"><img src="https://img.shields.io/github/v/release/SlimeNull/MissionControlEnhance?label=下载" alt="最新版本"></a>
+  <a href="https://github.com/SlimeNull/MissionControlEnhance/releases/latest"><img src="https://img.shields.io/github/v/release/SlimeNull/MissionControlEnhance?label=%E4%B8%8B%E8%BD%BD" alt="最新版本"></a>
   <img src="https://img.shields.io/badge/macOS-13%2B-blue" alt="macOS 13+">
-  <img src="https://img.shields.io/badge/Apple%20Silicon%20%7C%20Intel-支持-success" alt="Apple Silicon 与 Intel">
+  <img src="https://img.shields.io/badge/Apple%20Silicon%20%7C%20Intel-%E6%94%AF%E6%8C%81-success" alt="Apple Silicon 与 Intel">
 </p>
 
 <p align="center">
